@@ -1,10 +1,10 @@
 package wallet
 
 import (
-	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
-	btc "github.com/btcsuite/btcutil"
-	hd "github.com/btcsuite/btcutil/hdkeychain"
+	"github.com/ltcsuite/ltcd/chaincfg"
+	"github.com/ltcsuite/ltcd/chaincfg/chainhash"
+	ltc "github.com/ltcsuite/ltcutil"
+	hd "github.com/ltcsuite/ltcutil/hdkeychain"
 	"time"
 	"errors"
 )
@@ -30,22 +30,22 @@ type Wallet interface {
 	MasterPublicKey() *hd.ExtendedKey
 
 	// Get the current address for the given purpose
-	CurrentAddress(purpose KeyPurpose) btc.Address
+	CurrentAddress(purpose KeyPurpose) ltc.Address
 
 	// Returns a fresh address that has never been returned by this function
-	NewAddress(purpose KeyPurpose) btc.Address
+	NewAddress(purpose KeyPurpose) ltc.Address
 
 	// Parse the address string and return an address interface
-	DecodeAddress(addr string) (btc.Address, error)
+	DecodeAddress(addr string) (ltc.Address, error)
 
 	// Turn the given output script into an address
-	ScriptToAddress(script []byte) (btc.Address, error)
+	ScriptToAddress(script []byte) (ltc.Address, error)
 
 	// Turn the given address into an output script
-	AddressToScript(addr btc.Address) ([]byte, error)
+	AddressToScript(addr ltc.Address) ([]byte, error)
 
 	// Returns if the wallet has the key for the given address
-	HasKey(addr btc.Address) bool
+	HasKey(addr ltc.Address) bool
 
 	// Get the confirmed and unconfirmed balances
 	Balance() (confirmed, unconfirmed int64)
@@ -63,7 +63,7 @@ type Wallet interface {
 	GetFeePerByte(feeLevel FeeLevel) uint64
 
 	// Send bitcoins to an external wallet
-	Spend(amount int64, addr btc.Address, feeLevel FeeLevel) (*chainhash.Hash, error)
+	Spend(amount int64, addr ltc.Address, feeLevel FeeLevel) (*chainhash.Hash, error)
 
 	// Bump the fee for the given transaction
 	BumpFee(txid chainhash.Hash) (*chainhash.Hash, error)
@@ -75,7 +75,7 @@ type Wallet interface {
 	EstimateSpendFee(amount int64, feeLevel FeeLevel) (uint64, error)
 
 	// Build and broadcast a transaction that sweeps all coins from an address. If it is a p2sh multisig, the redeemScript must be included
-	SweepAddress(utxos []Utxo, address *btc.Address, key *hd.ExtendedKey, redeemScript *[]byte, feeLevel FeeLevel) (*chainhash.Hash, error)
+	SweepAddress(utxos []Utxo, address *ltc.Address, key *hd.ExtendedKey, redeemScript *[]byte, feeLevel FeeLevel) (*chainhash.Hash, error)
 
 	// Create a signature for a multisig transaction
 	CreateMultisigSignature(ins []TransactionInput, outs []TransactionOutput, key *hd.ExtendedKey, redeemScript []byte, feePerByte uint64) ([]Signature, error)
@@ -84,7 +84,7 @@ type Wallet interface {
 	Multisign(ins []TransactionInput, outs []TransactionOutput, sigs1 []Signature, sigs2 []Signature, redeemScript []byte, feePerByte uint64, broadcast bool) ([]byte, error)
 
 	// Generate a multisig script from public keys. If a timeout is included the returned script should be a timelocked escrow which releases using the timeoutKey.
-	GenerateMultisigScript(keys []hd.ExtendedKey, threshold int, timeout time.Duration, timeoutKey *hd.ExtendedKey) (addr btc.Address, redeemScript []byte, err error)
+	GenerateMultisigScript(keys []hd.ExtendedKey, threshold int, timeout time.Duration, timeoutKey *hd.ExtendedKey) (addr ltc.Address, redeemScript []byte, err error)
 
 	// Add a script to the wallet and get notifications back when coins are received or spent from it
 	AddWatchedScript(script []byte) error
